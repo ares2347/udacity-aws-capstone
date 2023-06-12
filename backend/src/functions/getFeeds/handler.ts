@@ -1,11 +1,9 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
 import { formatJSONResponse } from '@libs/api-gateway';
-import { middyfy } from '@libs/lambda';
 import { scanFeeds } from 'src/helpers/feeds';
 import { encodeNextKey, getLimit, getNextKey } from 'src/utils/dbUtils';
-import schema from './schema';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-const getFeedsHandler: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+const getFeedsHandler = async (event: APIGatewayProxyEvent) => {
   let nextKey // Next key to continue scan operation if necessary
   let limit // Maximum number of elements to return
   try {
@@ -31,4 +29,4 @@ const getFeedsHandler: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async
   });
 };
 
-export const main = middyfy(getFeedsHandler);
+export const main = getFeedsHandler;

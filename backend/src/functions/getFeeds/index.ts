@@ -1,4 +1,3 @@
-import schema from "./schema";
 import { handlerPath } from "@libs/handler-resolver";
 
 const feedTable = process.env.FEEDS_TABLE
@@ -9,11 +8,7 @@ export default {
       http: {
         method: "get",
         path: "feeds",
-        request: {
-          schemas: {
-            "application/json": schema,
-          },
-        },
+        cors: true 
       },
     },
   ],
