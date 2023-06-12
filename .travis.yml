@@ -14,7 +14,6 @@ deploy_service_job: &DEPLOY_SERVICE_JOB
     - travis_retry npm install
     - travis_retry npm install
     - serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret AWS_SECRET_ACCESS_KEY --profile serverless
-    - serverless login
     - cd -
 
   script:
