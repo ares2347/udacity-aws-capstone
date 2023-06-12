@@ -6,7 +6,6 @@ import updateFeed from "@functions/updateFeed";
 import deleteFeed from "@functions/deleteFeed";
 
 const serverlessConfiguration: AWS = {
-  org: "hoangtudottran",
   app: "udacity-capstone",
   service: "backend",
   frameworkVersion: "3",
