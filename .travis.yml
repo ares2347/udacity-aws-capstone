@@ -9,9 +9,9 @@ deploy_service_job: &DEPLOY_SERVICE_JOB
       - backend/node_modules
 
   install:
+    - cd ${SERVICE_PATH}
     - npm install -g serverless
     - travis_retry npm install
-    - cd ${SERVICE_PATH}
     - travis_retry npm install
     - cd -
 
