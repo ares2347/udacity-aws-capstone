@@ -5,7 +5,7 @@ import Axios from 'axios'
 import { UpdateFeedRequest } from '../types/UpdateFeedRequest';
 
 export async function getFeeds(idToken: string): Promise<Feed[]> {
-  console.log('Fetching todos')
+  console.log('Fetching feeds')
 
   const response = await Axios.get(`${apiEndpoint}/feeds?nextKey=&&limit=20`, {
     headers: {
@@ -17,7 +17,7 @@ export async function getFeeds(idToken: string): Promise<Feed[]> {
   return response.data.items
 }
 export async function getMyFeeds(idToken: string): Promise<Feed[]> {
-  console.log('Fetching todos')
+  console.log('Fetching feed')
 
   const response = await Axios.get(`${apiEndpoint}/feeds/my-feed?nextKey=&&limit=20`, {
     headers: {
@@ -30,7 +30,7 @@ export async function getMyFeeds(idToken: string): Promise<Feed[]> {
 }
 
 export async function getFeedById(idToken: string, feedId: string): Promise<Feed> {
-  console.log('Fetching todos')
+  console.log('Fetching feed')
 
   const response = await Axios.get(`${apiEndpoint}/feeds/${feedId}`, {
     headers: {
@@ -71,7 +71,7 @@ export async function likeFeed(
   idToken: string,
   feedId: string
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/feeds/like/${feedId}`, {
+  await Axios.patch(`${apiEndpoint}/feeds/like/${feedId}`, {feedId},{
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

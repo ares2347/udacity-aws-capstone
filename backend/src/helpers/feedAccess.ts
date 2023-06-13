@@ -57,12 +57,9 @@ export class FeedAccess {
         await this.docClient.update({
             TableName: this.feedTable,
             Key: {
-                "todoId": feedId
+                "feedId": feedId
             },
             UpdateExpression: "set #caption = :caption, attachmentUrl = :attachmentUrl, updatedAt = :updatedAt",
-            ExpressionAttributeNames: {
-                "#todoName": "name"
-            },
             ExpressionAttributeValues: {
                 ":caption": feed.caption,
                 ":attachmentUrl": feed.attachmentUrl,
@@ -74,7 +71,7 @@ export class FeedAccess {
         await this.docClient.update({
             TableName: this.feedTable,
             Key: {
-                "todoId": feedId
+                "feedId": feedId
             },
             UpdateExpression: "add reaction :reaction",
             ExpressionAttributeValues: {
@@ -83,11 +80,11 @@ export class FeedAccess {
         }).promise();
     }
 
-    async deleteFeed(todoId: string) : Promise<void>{
+    async deleteFeed(feedId: string) : Promise<void>{
         await this.docClient.delete({
             TableName: this.feedTable,
             Key: {
-                "todoId": todoId
+                "feedId": feedId
             }
         }).promise();
     }
