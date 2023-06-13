@@ -32,7 +32,7 @@ const serverlessConfiguration: AWS = {
         "https://dev-3xobn2786ug4wj1d.us.auth0.com/.well-known/jwks.json",
       SIGNED_URL_EXPIRATION: "3600",
       ATTACHMENTS_S3_BUCKET:
-        "serverless-todo-images-361796378879-${self:provider.stage}",
+        "serverless-feeds-attachments-361796378879-${self:provider.stage}",
     },
     iamRoleStatements: [
       {
