@@ -10,8 +10,5 @@ export async function getUserProfile(idToken: string): Promise<any> {
         'Authorization': `Bearer ${authConfig.mngtToken}`
       },
     })
-    localStorage.setItem('email', response.data.email);
-    localStorage.setItem('name', response.data.name);
-    localStorage.setItem('picture', response.data.picture);
-    return response.data.items
+    return response.data;
   }

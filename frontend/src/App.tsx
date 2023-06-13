@@ -23,6 +23,7 @@ import { createFeed, getUploadUrl, uploadFile } from './api/feed-api'
 import { MyFeeds } from './components/MyFeeds'
 import { FeedDetail } from './components/FeedDetail'
 import { getUserProfile } from './api/user-apis'
+import { UserProvider } from './components/UserContext'
 
 export interface AppProps {}
 
@@ -34,6 +35,8 @@ export interface AppProps {
 export interface AppState {
   createNewFeed: boolean
   loading: boolean
+  user: any
+  isLoggedIn: boolean
   newFeed?: {
     caption?: string
     attachment?: any
@@ -50,7 +53,9 @@ export default class App extends Component<AppProps, AppState> {
   }
   state: Readonly<AppState> = {
     createNewFeed: false,
-    loading: false
+    loading: false,
+    user: {},
+    isLoggedIn: false
   }
   handleCreateFeedModal = (open: boolean) => {
     this.setState({
@@ -60,11 +65,20 @@ export default class App extends Component<AppProps, AppState> {
   }
   async handleLogin() {
     this.props.auth.login()
-    const idToken = this.props.auth.getIdToken()
-    await getUserProfile(idToken)
+    
   }
-
-  async handleLogout() {
+  async componentDidUpdate() {
+    if (this.props.auth.isAuthenticated() && !this.state.isLoggedIn) {
+      const idToken = this.props.auth.getIdToken()
+      var userData = await getUserProfile(idToken)
+      this.setState({
+        ...this.state,
+        user: userData,
+        isLoggedIn: true
+      })
+    }
+  }
+  handleLogout() {
     this.props.auth.logout()
   }
 
@@ -79,6 +93,7 @@ export default class App extends Component<AppProps, AppState> {
       }
     })
   }
+
   handleNewFeedCaptionChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -89,6 +104,7 @@ export default class App extends Component<AppProps, AppState> {
       }
     })
   }
+
   handleFeedPosted = async () => {
     try {
       let fileUrl
@@ -103,8 +119,8 @@ export default class App extends Component<AppProps, AppState> {
       await createFeed(this.props.auth.getIdToken(), {
         caption: this.state.newFeed?.caption as string,
         attachmentUrl: fileUrl,
-        name: localStorage.getItem("name") || "",
-        picture: localStorage.getItem("picture") || ""
+        name: this.state.user.name || '',
+        picture: this.state.user.name.picture || ''
       })
       this.setState({
         createNewFeed: false,
@@ -123,7 +139,7 @@ export default class App extends Component<AppProps, AppState> {
 
   render() {
     return (
-      <div>
+      <UserProvider value={this.state.user}>
         <Grid columns={2} divided>
           <Grid.Row>
             <Grid.Column width={3}>{this.generateMenu()}</Grid.Column>
@@ -143,7 +159,7 @@ export default class App extends Component<AppProps, AppState> {
             </Grid.Column>
           </Grid.Row>
         </Grid>
-      </div>
+      </UserProvider>
     )
   }
 
@@ -207,12 +223,8 @@ export default class App extends Component<AppProps, AppState> {
           <MenuItem
             content={
               <Header as="h4">
-                <Image
-                  circular
-                  size="tiny"
-                  src={localStorage.getItem("picture")}
-                />
-                <Header.Content>{localStorage.getItem("name")}</Header.Content>
+                <Image circular size="tiny" src={this.state.user.picture} />
+                <Header.Content>{this.state.user.name}</Header.Content>
               </Header>
             }
           />
@@ -220,6 +232,7 @@ export default class App extends Component<AppProps, AppState> {
       </Menu>
     )
   }
+
   readImageUrl(file: any) {
     return URL.createObjectURL(file)
   }
@@ -276,6 +289,7 @@ export default class App extends Component<AppProps, AppState> {
       </Modal>
     )
   }
+
   generateCurrentPage() {
     if (!this.props.auth.isAuthenticated()) {
       return <LogIn auth={this.props.auth} />

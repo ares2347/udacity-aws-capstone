@@ -38,8 +38,8 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
   onFeedLike = async (feed: FeedItem) => {
     try {
       await likeFeed(this.props.auth.getIdToken(), feed.feedId)
-    } catch {
-      alert('Todo deletion failed')
+    } catch(e) {
+      console.log("🚀 ~ file: Feeds.tsx:42 ~ Feeds ~ onFeedLike= ~ e:", e)
     }
   }
 
@@ -103,12 +103,12 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
               <Image
                 circular
                 size="tiny"
-                src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
+                src={feed.picture}
               />
             </Feed.Label>
             <Feed.Content>
               <Feed.Summary>
-                <Feed.User>Username</Feed.User>
+                <Feed.User>{feed.name}</Feed.User>
                 <Feed.Date>
                   {feed.createdAt === feed.updatedAt
                     ? new Date(feed.createdAt).toDateString()

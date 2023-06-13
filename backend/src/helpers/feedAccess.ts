@@ -76,7 +76,10 @@ export class FeedAccess {
             Key: {
                 "todoId": feedId
             },
-            UpdateExpression: "set reaction = reaction + 1",
+            UpdateExpression: "add reaction :reaction",
+            ExpressionAttributeValues: {
+                ":reaction": 1,
+            }
         }).promise();
     }
 
