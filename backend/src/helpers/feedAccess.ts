@@ -23,6 +23,15 @@ export class FeedAccess {
             lastEvaluatedKey: result.LastEvaluatedKey
         }
     }
+    async getFeedById(feedId: string) : Promise<Feed>{
+        const result =  await this.docClient.get({
+            TableName: this.feedTable,
+            Key: {
+                "feedId": feedId
+            }
+        }).promise();
+        return result.Item as Feed;
+    }
     async createFeed(feed: CreateFeedRequest, userId : string) : Promise<Feed>{
         const feedId = uuid.v4();
 

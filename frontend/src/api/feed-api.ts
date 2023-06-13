@@ -7,7 +7,7 @@ import { UpdateFeedRequest } from '../types/UpdateFeedRequest';
 export async function getFeeds(idToken: string): Promise<Feed[]> {
   console.log('Fetching todos')
 
-  const response = await Axios.get(`${apiEndpoint}/feeds`, {
+  const response = await Axios.get(`${apiEndpoint}/feeds?nextKey=&&limit=20`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -15,6 +15,31 @@ export async function getFeeds(idToken: string): Promise<Feed[]> {
   })
   console.log('Feeds:', response.data)
   return response.data.items
+}
+export async function getMyFeeds(idToken: string): Promise<Feed[]> {
+  console.log('Fetching todos')
+
+  const response = await Axios.get(`${apiEndpoint}/feeds/my-feed?nextKey=&&limit=20`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  console.log('Feeds:', response.data)
+  return response.data.items
+}
+
+export async function getFeedById(idToken: string, feedId: string): Promise<Feed> {
+  console.log('Fetching todos')
+
+  const response = await Axios.get(`${apiEndpoint}/feeds/${feedId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  console.log('Feeds:', response.data)
+  return response.data.item
 }
 
 export async function createFeed(
@@ -42,6 +67,17 @@ export async function patchFeed(
     }
   })
 }
+export async function likeFeed(
+  idToken: string,
+  feedId: string
+): Promise<void> {
+  await Axios.patch(`${apiEndpoint}/feeds/${feedId}/like`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    }
+  })
+}
 
 export async function deleteFeed(
   idToken: string,
@@ -57,9 +93,8 @@ export async function deleteFeed(
 
 export async function getUploadUrl(
   idToken: string,
-  feedId: string
 ): Promise<string> {
-  const response = await Axios.post(`${apiEndpoint}/feeds/${feedId}/attachment`, '', {
+  const response = await Axios.post(`${apiEndpoint}/feeds`, '', {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -68,6 +103,7 @@ export async function getUploadUrl(
   return response.data.uploadUrl
 }
 
-export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
-  await Axios.put(uploadUrl, file)
+export async function uploadFile(uploadUrl: string, file: Buffer): Promise<string> {
+  const response = await Axios.put(uploadUrl, file);
+  return response.data.url;
 }

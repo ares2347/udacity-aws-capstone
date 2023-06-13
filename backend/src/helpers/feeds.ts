@@ -14,6 +14,12 @@ export async function scanFeeds(nextKey: any, limit: number): Promise<ScanFeedDt
     logger.info("Feeds fetched");
     return result;
 }
+export async function getFeedById(feedId): Promise<Feed>{
+    logger.info(`Fetching feed id ${feedId}`);
+    const result = feedAccess.getFeedById(feedId);
+    logger.info("Feed fetched");
+    return result;
+}
 export async function createFeed(feed: CreateFeedRequest, userId: string): Promise<Feed>{
     logger.info("Fetching feeds");
     const result = await feedAccess.createFeed(feed, userId);

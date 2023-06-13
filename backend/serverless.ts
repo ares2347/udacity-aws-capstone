@@ -35,7 +35,7 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       {
         Effect: 'Allow',
-        Action: ["dynamodb:Scan","dynamodb:PutItem","dynamodb:UpdateItem","dynamodb:GetItem","dynamodb:DeleteItem"],
+        Action: ["dynamodb:Scan","dynamodb:Query","dynamodb:PutItem","dynamodb:UpdateItem","dynamodb:GetItem","dynamodb:DeleteItem"],
         Resource: 'arn:aws:dynamodb:us-east-1:*:table/${self:provider.environment.FEEDS_TABLE}'
       },
       // Add more IAM role statements as needed

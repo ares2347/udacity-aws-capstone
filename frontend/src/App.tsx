@@ -1,12 +1,26 @@
 import { Component } from 'react'
-import { Route, Router, Switch } from 'react-router-dom'
-import { Grid, Header, Icon, Menu, MenuItem, Image } from 'semantic-ui-react'
+import { Route, Router, Switch, NavLink } from 'react-router-dom'
+import {
+  Grid,
+  Header,
+  Icon,
+  Menu,
+  MenuItem,
+  Image,
+  Modal,
+  Button,
+  Form,
+  TextArea,
+  Input
+} from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditTodo } from './components/EditTodo'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
-import { Todos } from './components/Todos'
+import { Feeds } from './components/Feeds'
+import { createFeed, getUploadUrl, uploadFile } from './api/feed-api'
+import { MyFeeds } from './components/MyFeeds'
+import { FeedDetail } from './components/FeedDetail'
 
 export interface AppProps {}
 
@@ -15,7 +29,14 @@ export interface AppProps {
   history: any
 }
 
-export interface AppState {}
+export interface AppState {
+  createNewFeed: boolean
+  newFeed?: {
+    caption?: string
+    attachment?: any
+    uploadAttachmentStatus?: boolean
+  }
+}
 
 export default class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -24,13 +45,64 @@ export default class App extends Component<AppProps, AppState> {
     this.handleLogin = this.handleLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
   }
-
+  state: Readonly<AppState> = {
+    createNewFeed: false
+  }
+  handleCreateFeedModal = (open: boolean) => {
+    this.setState({
+      createNewFeed: open,
+      newFeed: open ? this.state.newFeed : undefined
+    })
+  }
   handleLogin() {
     this.props.auth.login()
   }
 
   handleLogout() {
     this.props.auth.logout()
+  }
+
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+
+    this.setState({
+      newFeed: {
+        ...this.state.newFeed,
+        attachment: files[0]
+      }
+    })
+  }
+  handleNewFeedCaptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({
+      newFeed: {
+        ...this.state.newFeed,
+        caption: event.target.value
+      }
+    })
+  }
+  handleFeedPosted = async () => {
+    try {
+      let fileUrl;
+      console.log("🚀 ~ file: App.tsx:80 ~ App ~ handleFeedPosted= ~ newFeed:", this.state.newFeed)
+      if(this.state.newFeed?.attachment){
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken())
+        fileUrl = await uploadFile(
+          uploadUrl,
+          this.state.newFeed?.attachment
+        )
+      }
+      await createFeed(this.props.auth.getIdToken(), {
+        caption: this.state.newFeed?.caption as string,
+        attachmentUrl: fileUrl
+      })
+      this.setState({
+        createNewFeed: false,
+        newFeed: undefined
+      })
+    } catch (error) {
+      alert('Feed creation failed')
+    }
   }
 
   render() {
@@ -42,6 +114,7 @@ export default class App extends Component<AppProps, AppState> {
             <Grid.Column width={13}>
               <Router history={this.props.history}>
                 {this.generateCurrentPage()}
+                {this.renderNewFeedInput()}
               </Router>
             </Grid.Column>
           </Grid.Row>
@@ -54,21 +127,35 @@ export default class App extends Component<AppProps, AppState> {
     return (
       <Menu borderless={true} size="huge" fluid={true} vertical secondary>
         <Menu.Item name="home">
-          <Header as="h2">
-            <Icon name="home" />
-            <Header.Content>Home</Header.Content>
-          </Header>
+          <NavLink to="/">
+            <Header as="h2">
+              <Icon name="home" />
+              <Header.Content>Home</Header.Content>
+            </Header>
+          </NavLink>
         </Menu.Item>
-        {this.props.auth.isAuthenticated() ? (
-          <MenuItem
-            content={
-              <Header as="h4">
-                <Image circular size='tiny' src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"/>
-                <Header.Content>Username</Header.Content>
-              </Header>
-            }
-          />
-        ) : null}
+        {this.props.auth.isAuthenticated() && (
+          <>
+            <MenuItem
+              onClick={() => this.handleCreateFeedModal(true)}
+              content={
+                <Header as="h4">
+                  <Icon name="add" />
+                  <Header.Content>Add Post</Header.Content>
+                </Header>
+              }
+            />
+            <MenuItem
+            onClick={() => this.props.history.push(`./my-post`)}
+              content={
+                <Header as="h4">
+                  <Icon name="feed" />
+                  <Header.Content>My Post</Header.Content>
+                </Header>
+              }
+            />
+          </>
+        )}
         {this.props.auth.isAuthenticated() ? (
           <Menu.Item
             name="logout"
@@ -92,10 +179,77 @@ export default class App extends Component<AppProps, AppState> {
             }
           />
         )}
+        {this.props.auth.isAuthenticated() && (
+          <MenuItem
+            content={
+              <Header as="h4">
+                <Image
+                  circular
+                  size="tiny"
+                  src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
+                />
+                <Header.Content>Username</Header.Content>
+              </Header>
+            }
+          />
+        )}
       </Menu>
     )
   }
+  readImageUrl(file: any) {
+    return URL.createObjectURL(file)
+  }
 
+  renderNewFeedInput() {
+    return (
+      <Modal
+        onClose={() => this.handleCreateFeedModal(false)}
+        onOpen={() => this.handleCreateFeedModal(true)}
+        open={this.state.createNewFeed}
+      >
+        <Modal.Header>Create a new post</Modal.Header>
+        <Modal.Content image>
+          <Modal.Description>
+            <Form style={{ display: 'flex', gap: 16 }}>
+              {this.state.newFeed?.attachment ? (
+                <Image
+                  size="medium"
+                  src={this.readImageUrl(this.state.newFeed.attachment)}
+                  wrapped
+                />
+              ) : (
+                <Form.Field>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    placeholder="Image to upload"
+                    onChange={this.handleFileChange}
+                  />
+                </Form.Field>
+              )}
+
+              <Form.Field style={{ flex: 1 }}>
+                <TextArea
+                  placeholder="What's on your mind..."
+                  style={{ minHeight: 300 }}
+                  value={this.state.newFeed?.caption}
+                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => this.handleNewFeedCaptionChange(event)}
+                />
+              </Form.Field>
+            </Form>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => this.handleCreateFeedModal(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => this.handleFeedPosted()} positive>
+            Post
+          </Button>
+        </Modal.Actions>
+      </Modal>
+    )
+  }
   generateCurrentPage() {
     if (!this.props.auth.isAuthenticated()) {
       return <LogIn auth={this.props.auth} />
@@ -107,15 +261,21 @@ export default class App extends Component<AppProps, AppState> {
           path="/"
           exact
           render={(props) => {
-            return <Todos {...props} auth={this.props.auth} />
+            return <Feeds {...props} auth={this.props.auth} />
           }}
         />
-
         <Route
-          path="/todos/:todoId/edit"
+          path="/my-post"
           exact
           render={(props) => {
-            return <EditTodo {...props} auth={this.props.auth} />
+            return <MyFeeds {...props} auth={this.props.auth} />
+          }}
+        />
+        <Route
+          path="/feeds/:feedId"
+          exact
+          render={(props) => {
+            return <FeedDetail {...props} auth={this.props.auth} />
           }}
         />
 
