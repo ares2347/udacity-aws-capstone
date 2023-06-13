@@ -6,8 +6,9 @@ export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   events: [
     {
-      http: {
+      http: {     
         method: "post",
+        cors: true,
         path: "feeds",
         request: {
           schemas: {

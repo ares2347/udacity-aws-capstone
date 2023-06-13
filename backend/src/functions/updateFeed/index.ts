@@ -9,6 +9,7 @@ export default {
       http: {
         method: "patch",
         path: "feeds/{feedId}",
+        cors: true,
         request: {
           schemas: {
             "application/json": schema,
