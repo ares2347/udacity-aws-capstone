@@ -32,6 +32,14 @@ const serverlessConfiguration: AWS = {
       AUTH_0_JWKS_URL: "https://dev-3xobn2786ug4wj1d.us.auth0.com/.well-known/jwks.json",
       SIGNED_URL_EXPIRATION: "3600"
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: ["dynamodb:Scan","dynamodb:PutItem","dynamodb:UpdateItem","dynamodb:GetItem","dynamodb:DeleteItem"],
+        Resource: 'arn:aws:dynamodb:us-east-1:*:table/${self:provider.environment.FEEDS_TABLE}'
+      },
+      // Add more IAM role statements as needed
+    ],
   },
   // import the function via paths
   functions: { auth, getFeeds, createFeed, updateFeed, deleteFeed },
