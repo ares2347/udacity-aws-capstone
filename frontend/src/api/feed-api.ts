@@ -71,7 +71,7 @@ export async function likeFeed(
   idToken: string,
   feedId: string
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/feeds/${feedId}/like`, {
+  await Axios.patch(`${apiEndpoint}/feeds/like/${feedId}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

@@ -5,7 +5,8 @@ export interface Feed {
     updatedAt: string
     caption: string
     attachmentUrl?: string
-    comments: number
     reaction: number
+    name: string
+    picture: string
   }
   

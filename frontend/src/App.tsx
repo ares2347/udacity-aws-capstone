@@ -11,7 +11,8 @@ import {
   Button,
   Form,
   TextArea,
-  Input
+  Input,
+  Loader
 } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
@@ -21,6 +22,7 @@ import { Feeds } from './components/Feeds'
 import { createFeed, getUploadUrl, uploadFile } from './api/feed-api'
 import { MyFeeds } from './components/MyFeeds'
 import { FeedDetail } from './components/FeedDetail'
+import { getUserProfile } from './api/user-apis'
 
 export interface AppProps {}
 
@@ -31,6 +33,7 @@ export interface AppProps {
 
 export interface AppState {
   createNewFeed: boolean
+  loading: boolean
   newFeed?: {
     caption?: string
     attachment?: any
@@ -46,7 +49,8 @@ export default class App extends Component<AppProps, AppState> {
     this.handleLogout = this.handleLogout.bind(this)
   }
   state: Readonly<AppState> = {
-    createNewFeed: false
+    createNewFeed: false,
+    loading: false
   }
   handleCreateFeedModal = (open: boolean) => {
     this.setState({
@@ -54,11 +58,13 @@ export default class App extends Component<AppProps, AppState> {
       newFeed: open ? this.state.newFeed : undefined
     })
   }
-  handleLogin() {
+  async handleLogin() {
     this.props.auth.login()
+    const idToken = this.props.auth.getIdToken()
+    await getUserProfile(idToken)
   }
 
-  handleLogout() {
+  async handleLogout() {
     this.props.auth.logout()
   }
 
@@ -73,7 +79,9 @@ export default class App extends Component<AppProps, AppState> {
       }
     })
   }
-  handleNewFeedCaptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  handleNewFeedCaptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     this.setState({
       newFeed: {
         ...this.state.newFeed,
@@ -83,25 +91,33 @@ export default class App extends Component<AppProps, AppState> {
   }
   handleFeedPosted = async () => {
     try {
-      let fileUrl;
-      console.log("🚀 ~ file: App.tsx:80 ~ App ~ handleFeedPosted= ~ newFeed:", this.state.newFeed)
-      if(this.state.newFeed?.attachment){
+      let fileUrl
+      this.setState({
+        ...this.state,
+        loading: true
+      })
+      if (this.state.newFeed?.attachment) {
         const uploadUrl = await getUploadUrl(this.props.auth.getIdToken())
-        fileUrl = await uploadFile(
-          uploadUrl,
-          this.state.newFeed?.attachment
-        )
+        fileUrl = await uploadFile(uploadUrl, this.state.newFeed?.attachment)
       }
       await createFeed(this.props.auth.getIdToken(), {
         caption: this.state.newFeed?.caption as string,
-        attachmentUrl: fileUrl
+        attachmentUrl: fileUrl,
+        name: localStorage.getItem("name") || "",
+        picture: localStorage.getItem("picture") || ""
       })
       this.setState({
         createNewFeed: false,
+        loading: false,
         newFeed: undefined
       })
     } catch (error) {
       alert('Feed creation failed')
+      this.setState({
+        ...this.state,
+        createNewFeed: true,
+        loading: false
+      })
     }
   }
 
@@ -113,7 +129,15 @@ export default class App extends Component<AppProps, AppState> {
             <Grid.Column width={3}>{this.generateMenu()}</Grid.Column>
             <Grid.Column width={13}>
               <Router history={this.props.history}>
-                {this.generateCurrentPage()}
+                {this.state.loading ? (
+                  <Grid.Row>
+                    <Loader indeterminate active inline="centered">
+                      Loading
+                    </Loader>
+                  </Grid.Row>
+                ) : (
+                  this.generateCurrentPage()
+                )}
                 {this.renderNewFeedInput()}
               </Router>
             </Grid.Column>
@@ -146,7 +170,7 @@ export default class App extends Component<AppProps, AppState> {
               }
             />
             <MenuItem
-            onClick={() => this.props.history.push(`./my-post`)}
+              onClick={() => this.props.history.push(`./my-post`)}
               content={
                 <Header as="h4">
                   <Icon name="feed" />
@@ -186,9 +210,9 @@ export default class App extends Component<AppProps, AppState> {
                 <Image
                   circular
                   size="tiny"
-                  src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
+                  src={localStorage.getItem("picture")}
                 />
-                <Header.Content>Username</Header.Content>
+                <Header.Content>{localStorage.getItem("name")}</Header.Content>
               </Header>
             }
           />
@@ -233,7 +257,9 @@ export default class App extends Component<AppProps, AppState> {
                   placeholder="What's on your mind..."
                   style={{ minHeight: 300 }}
                   value={this.state.newFeed?.caption}
-                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => this.handleNewFeedCaptionChange(event)}
+                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    this.handleNewFeedCaptionChange(event)
+                  }
                 />
               </Form.Field>
             </Form>

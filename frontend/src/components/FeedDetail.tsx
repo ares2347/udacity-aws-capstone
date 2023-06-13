@@ -3,7 +3,16 @@ import { History } from 'history'
 import { Feed } from '../types/Feed'
 import React from 'react'
 import { getFeedById } from '../api/feed-api'
-import { Image, Card, Modal, Icon, Container } from 'semantic-ui-react'
+import {
+  Image,
+  Card,
+  Modal,
+  Icon,
+  Container,
+  Button,
+  Grid,
+  Loader
+} from 'semantic-ui-react'
 
 interface FeedDetailProps {
   auth: Auth
@@ -28,44 +37,58 @@ export class FeedDetail extends React.PureComponent<
   async componentDidMount() {
     try {
       this.setState(this.state)
-      console.log("🚀 ~ file: FeedDetail.tsx:30 ~ componentDidMount ~ state:", this.state)
+      console.log(
+        '🚀 ~ file: FeedDetail.tsx:30 ~ componentDidMount ~ state:',
+        this.state
+      )
     } catch (error) {
-      console.log("🚀 ~ file: FeedDetail.tsx:33 ~ componentDidMount ~ error:", error)
-      
+      console.log(
+        '🚀 ~ file: FeedDetail.tsx:33 ~ componentDidMount ~ error:',
+        error
+      )
     }
-    
-    // try {
-    //   const feed = await getFeedById(
-    //     this.props.auth.getIdToken(),
-    //     this.props.feed.feedId
-    //   )
-    //   this.setState({
-    //     feed,
-    //     loadingFeeds: false
-    //   })
-    // } catch (e) {
-    //   alert(`Failed to fetch feeds: ${(e as Error).message}`)
-    //   this.setState({
-    //     feed: this.props.feed,
-    //     loadingFeeds: false
-    //   })
-    // }
+
+    try {
+      const feedId = this.props.history?.location?.pathname.split('/')[2]
+      const feed = await getFeedById(this.props.auth.getIdToken(), feedId)
+      this.setState({
+        feed,
+        loadingFeeds: false,
+        liked: false
+      })
+    } catch (e) {
+      alert(`Failed to fetch feeds: ${(e as Error).message}`)
+      this.props.history.goBack()
+    }
   }
   handleLike = async () => {
     try {
-      console.log("🚀 ~ file: FeedDetail.tsx:52 ~ handleLike ~ this.state.liked:", this.state)
-      const liked = this.state.liked
       this.setState({
         ...this.state,
+        loadingFeeds: true
+      })
+      const feedId = this.props.history?.location?.pathname.split('/')[2]
+      const feed = await getFeedById(this.props.auth.getIdToken(), feedId)
+      console.log(
+        '🚀 ~ file: FeedDetail.tsx:52 ~ handleLike ~ this.state.liked:',
+        this.state
+      )
+      const liked = this.state.liked
+      this.setState({
+        loadingFeeds: false,
+        feed: feed,
         liked: !liked
       })
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
   render() {
-    let reaction = this.state.feed?.reaction as number
-    return (
+    return this.state.loadingFeeds ? (
+      <Grid.Row style ={{marginTop: 40}}>
+        <Loader indeterminate active inline="centered">
+          Loading Feed
+        </Loader>
+      </Grid.Row>
+    ) : (
       <Container style={{ marginTop: 24, padding: '0 300px' }}>
         <Icon
           name="arrow left"
@@ -83,22 +106,27 @@ export class FeedDetail extends React.PureComponent<
           />
           <Card.Content>
             <Card.Header>{this.state.feed?.userId}</Card.Header>
-            <Card.Meta>
-              <span className="date">
+            <Card.Meta style={{ display: 'flex' }}>
+              <span className="date" style={{ flex: 1 }}>
                 {new Date(this.state.feed?.updatedAt as string).toDateString()}
               </span>
+              {this.state.feed?.userId === '' && (
+                <Button icon content={<Icon name="pencil" />} size="mini" />
+              )}
+              {this.state.feed?.userId === '' && (
+                <Button icon content={<Icon name="trash" />} size="mini" />
+              )}
             </Card.Meta>
             <Card.Description>{this.state.feed?.caption}</Card.Description>
-
             {this.state.liked ? (
               <Card.Meta>
-                <Icon name="like" onClick={this.handleLike} color='red'/>
-                <span>{reaction++} Liked</span>{' '}
+                <Icon name="like" onClick={this.handleLike} color="red" />
+                <span>{this.state.feed?.reaction} Liked</span>{' '}
               </Card.Meta>
             ) : (
               <Card.Meta>
-                <Icon name="like" onClick={this.handleLike}/>
-                <span>{reaction} Liked</span>
+                <Icon name="like" onClick={this.handleLike} />
+                <span>{this.state.feed?.reaction} Liked</span>
               </Card.Meta>
             )}
           </Card.Content>

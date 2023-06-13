@@ -42,7 +42,8 @@ export class FeedAccess {
             createdAt: new Date().toISOString(),
             updatedAt:  new Date().toISOString(),
             attachmentUrl: feed.attachmentUrl,
-            comments: 0,
+            name: feed.name,
+            picture: feed.picture,
             reaction: 0
         }
 
@@ -67,6 +68,15 @@ export class FeedAccess {
                 ":attachmentUrl": feed.attachmentUrl,
                 ":updatedAt": new Date().toISOString()
             }
+        }).promise();
+    }
+    async likeFeed(feedId: string) : Promise<void>{
+        await this.docClient.update({
+            TableName: this.feedTable,
+            Key: {
+                "todoId": feedId
+            },
+            UpdateExpression: "set reaction = reaction + 1",
         }).promise();
     }
 

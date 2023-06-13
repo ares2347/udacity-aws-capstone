@@ -110,10 +110,6 @@ export class MyFeeds extends React.PureComponent<FeedsProps, FeedsState> {
                   <Icon name="like" disabled/>
                   {feed.reaction}
                 </Feed.Like>
-                <Feed.Like>
-                  <Icon name="comment" disabled/>
-                  {feed.comments}
-                </Feed.Like>
               </Feed.Meta>
             </Feed.Content>
           </Feed.Event>

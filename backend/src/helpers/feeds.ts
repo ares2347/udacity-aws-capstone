@@ -36,3 +36,8 @@ export async function deleteFeed(feedId: string): Promise<void>{
     await feedAccess.deleteFeed(feedId);
     logger.info("Feeds fetched");
 }
+export async function likeFeed(feedId: string): Promise<void>{
+    logger.info("Fetching feeds");
+    await feedAccess.likeFeed(feedId);
+    logger.info("Feeds fetched");
+}
