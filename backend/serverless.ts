@@ -4,6 +4,7 @@ import auth from "@functions/auth";
 import createFeed from "@functions/createFeed";
 import updateFeed from "@functions/updateFeed";
 import deleteFeed from "@functions/deleteFeed";
+import getFeedById from "@functions/getFeedById";
 
 const serverlessConfiguration: AWS = {
   app: "udacity-capstone",
@@ -42,7 +43,7 @@ const serverlessConfiguration: AWS = {
     ],
   },
   // import the function via paths
-  functions: { auth, getFeeds, createFeed, updateFeed, deleteFeed },
+  functions: { auth, getFeeds, createFeed, updateFeed, deleteFeed, getFeedById },
   package: { individually: true },
   custom: {
     esbuild: {

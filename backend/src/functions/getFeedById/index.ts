@@ -7,7 +7,7 @@ export default {
     {
       http: {
         method: "get",
-        path: "feeds",
+        path: "feeds/{feedId}",
         cors: true 
       },
     },
@@ -16,7 +16,7 @@ export default {
   iamRoleStatements:[
     {
       Effect: "Allow",
-      Action: ["dynamodb:Scan"],
+      Action: ["dynamodb:Query"],
       Resource:[`arn:aws:dynamodb:us-east-1:*:table/${feedTable}`],
     }
   ]      
