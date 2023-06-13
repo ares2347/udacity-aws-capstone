@@ -1,5 +1,5 @@
 import { formatJSONResponse } from '@libs/api-gateway';
-import { queryFeeds, scanFeeds } from 'src/helpers/feeds';
+import { queryFeeds } from 'src/helpers/feeds';
 import { encodeNextKey, getLimit, getNextKey } from 'src/utils/dbUtils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getUserId } from 'src/utils/tokenUtils';
