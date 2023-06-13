@@ -120,7 +120,7 @@ export default class App extends Component<AppProps, AppState> {
         caption: this.state.newFeed?.caption as string,
         attachmentUrl: fileUrl,
         name: this.state.user.name || '',
-        picture: this.state.user.name.picture || ''
+        picture: this.state.user.picture || ''
       })
       this.setState({
         createNewFeed: false,

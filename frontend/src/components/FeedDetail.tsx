@@ -2,7 +2,7 @@ import Auth from '../auth/Auth'
 import { History } from 'history'
 import { Feed } from '../types/Feed'
 import React from 'react'
-import { getFeedById, likeFeed } from '../api/feed-api'
+import { deleteFeed, getFeedById, likeFeed } from '../api/feed-api'
 import {
   Image,
   Card,
@@ -77,7 +77,24 @@ export class FeedDetail extends React.PureComponent<
         feed: feed,
         liked: !liked
       })
-    } catch (error) {}
+    } catch (error) {
+      console.log("🚀 ~ file: FeedDetail.tsx:81 ~ handleLike= ~ error:", error)
+      
+    }
+  }
+  handleDelete = async () => {
+    try{
+      this.setState({
+        ...this.state,
+        loadingFeeds: true
+      })
+      const feedId = this.props.history?.location?.pathname.split('/')[2];
+      await deleteFeed(this.props.auth.getIdToken(), feedId);
+      this.props.history.push("/");
+
+    }catch(e){
+
+    }
   }
   render() {
     return this.state.loadingFeeds ? (
@@ -134,7 +151,7 @@ export class FeedDetail extends React.PureComponent<
               <UserConsumer>
                 {(value) =>
                   this.state.feed?.userId === value.user_id && (
-                    <Button icon content={<Icon name="trash" />} size="mini" />
+                    <Button icon content={<Icon name="trash" />} size="mini" onClick={this.handleDelete}/>
                   )
                 }
               </UserConsumer>

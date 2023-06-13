@@ -71,7 +71,7 @@ export async function likeFeed(
   idToken: string,
   feedId: string
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/feeds/like/${feedId}`, {feedId},{
+  await Axios.patch(`${apiEndpoint}/feeds/like/${feedId}`, {},{
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -94,7 +94,7 @@ export async function deleteFeed(
 export async function getUploadUrl(
   idToken: string,
 ): Promise<string> {
-  const response = await Axios.post(`${apiEndpoint}/feeds`, '', {
+  const response = await Axios.post(`${apiEndpoint}/feeds`, {}, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

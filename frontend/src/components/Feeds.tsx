@@ -9,7 +9,7 @@ import {
   Feed,
 } from 'semantic-ui-react'
 
-import { getFeeds, likeFeed } from '../api/feed-api'
+import { getFeeds } from '../api/feed-api'
 import Auth from '../auth/Auth'
 import { Feed as FeedItem } from '../types/Feed'
 
@@ -29,18 +29,6 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
     feeds: [],
     loadingFeeds: true,
     feedModal: false
-  }
-
-  onEditButtonClick = (feedId: string) => {
-    this.props.history.push(`/feeds/${feedId}/edit`)
-  }
-
-  onFeedLike = async (feed: FeedItem) => {
-    try {
-      await likeFeed(this.props.auth.getIdToken(), feed.feedId)
-    } catch(e) {
-      console.log("🚀 ~ file: Feeds.tsx:42 ~ Feeds ~ onFeedLike= ~ e:", e)
-    }
   }
 
   async componentDidMount() {
