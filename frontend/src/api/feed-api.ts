@@ -85,7 +85,6 @@ export async function deleteFeed(
 ): Promise<void> {
   await Axios.delete(`${apiEndpoint}/feeds/${feedId}`, {
     headers: {
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     }
   })
@@ -93,8 +92,9 @@ export async function deleteFeed(
 
 export async function getUploadUrl(
   idToken: string,
+  attachmentId: string
 ): Promise<string> {
-  const response = await Axios.post(`${apiEndpoint}/feeds`, {}, {
+  const response = await Axios.post(`${apiEndpoint}/feeds/attachment`, {}, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`

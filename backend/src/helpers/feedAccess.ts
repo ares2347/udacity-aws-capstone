@@ -9,12 +9,30 @@ import * as uuid from 'uuid';
 export class FeedAccess {
     constructor(
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
-        private readonly feedTable = process.env.FEEDS_TABLE
+        private readonly feedTable = process.env.FEEDS_TABLE,
+        private readonly feedTableGsi = process.env.FEEDS_TABLE_GSI,
+        private readonly bucketName = process.env.ATTACHMENTS_S3_BUCKET,
     ){}
 
     async getFeeds(nextKey: any, limit: number) : Promise<ScanFeedDto>{
         const result =  await this.docClient.scan({
             TableName: this.feedTable,
+            Limit: limit,
+            ExclusiveStartKey: nextKey
+        }).promise();
+        return {
+            items: result.Items as Feed[],
+            lastEvaluatedKey: result.LastEvaluatedKey
+        }
+    }
+    async queryFeeds(userId: string, nextKey: any, limit: number) : Promise<ScanFeedDto>{
+        const result =  await this.docClient.query({
+            TableName: this.feedTable,
+            IndexName: this.feedTableGsi,
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: {
+                ':userId': userId
+            },
             Limit: limit,
             ExclusiveStartKey: nextKey
         }).promise();
@@ -41,7 +59,6 @@ export class FeedAccess {
             userId: userId,
             createdAt: new Date().toISOString(),
             updatedAt:  new Date().toISOString(),
-            attachmentUrl: feed.attachmentUrl,
             name: feed.name,
             picture: feed.picture,
             reaction: 0
@@ -62,7 +79,6 @@ export class FeedAccess {
             UpdateExpression: "set #caption = :caption, attachmentUrl = :attachmentUrl, updatedAt = :updatedAt",
             ExpressionAttributeValues: {
                 ":caption": feed.caption,
-                ":attachmentUrl": feed.attachmentUrl,
                 ":updatedAt": new Date().toISOString()
             }
         }).promise();
@@ -88,4 +104,17 @@ export class FeedAccess {
             }
         }).promise();
     }
+    async updateFeedAttachmentUrl(feedId: string, attachmentId: string) : Promise<void>{
+        await this.docClient.update({
+            TableName: this.feedTable,
+            Key: {
+                "feedId": feedId
+            },
+            UpdateExpression: "set attachmentUrl = :attachmentUrl",
+            ExpressionAttributeValues: {
+                ":attachmentUrl": `https://${this.bucketName}.s3.amazonaws.com/${attachmentId}`
+            }
+        }).promise();
+    }
+
 }

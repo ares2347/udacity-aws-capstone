@@ -1,14 +1,15 @@
 import { handlerPath } from "@libs/handler-resolver";
 
 const feedTable = process.env.FEEDS_TABLE
+const feedTableGsi = process.env.FEEDS_TABLE_GSI
 export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   events: [
     {
       http: {
-        method: "delete",
-        path: "feeds/{feedId}",
-        cors: true
+        method: "get",
+        path: "feeds/my-feed",
+        cors: true 
       },
     },
   ],
@@ -16,8 +17,8 @@ export default {
   iamRoleStatements:[
     {
       Effect: "Allow",
-      Action: ["dynamodb:DeleteItem"],
-      Resource:[`arn:aws:dynamodb:us-east-1:*:table/${feedTable}`],
+      Action: ["dynamodb:Query"],
+      Resource:[`arn:aws:dynamodb:us-east-1:*:table/${feedTable}/index/${feedTableGsi}`],
     }
   ]      
 };

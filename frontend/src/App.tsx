@@ -107,21 +107,19 @@ export default class App extends Component<AppProps, AppState> {
 
   handleFeedPosted = async () => {
     try {
-      let fileUrl
       this.setState({
         ...this.state,
         loading: true
       })
-      if (this.state.newFeed?.attachment) {
-        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken())
-        fileUrl = await uploadFile(uploadUrl, this.state.newFeed?.attachment)
-      }
-      await createFeed(this.props.auth.getIdToken(), {
+      const feedResult = await createFeed(this.props.auth.getIdToken(), {
         caption: this.state.newFeed?.caption as string,
-        attachmentUrl: fileUrl,
         name: this.state.user.name || '',
         picture: this.state.user.picture || ''
       })
+      if (this.state.newFeed?.attachment) {
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), feedResult.feedId)
+        await uploadFile(uploadUrl, this.state.newFeed?.attachment)
+      }
       this.setState({
         createNewFeed: false,
         loading: false,

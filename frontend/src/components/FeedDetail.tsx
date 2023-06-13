@@ -2,7 +2,7 @@ import Auth from '../auth/Auth'
 import { History } from 'history'
 import { Feed } from '../types/Feed'
 import React from 'react'
-import { deleteFeed, getFeedById, likeFeed } from '../api/feed-api'
+import { deleteFeed, getFeedById, getUploadUrl, likeFeed, patchFeed, uploadFile } from '../api/feed-api'
 import {
   Image,
   Card,
@@ -10,7 +10,11 @@ import {
   Container,
   Button,
   Grid,
-  Loader
+  Loader,
+  Modal,
+  Form,
+  Input,
+  TextArea
 } from 'semantic-ui-react'
 import { UserConsumer } from './UserContext'
 
@@ -23,6 +27,8 @@ interface FeedDetailState {
   feed?: Feed
   loadingFeeds: boolean
   liked: boolean
+  openModal: boolean
+  newAttachment?: any
 }
 
 export class FeedDetail extends React.PureComponent<
@@ -31,7 +37,8 @@ export class FeedDetail extends React.PureComponent<
 > {
   state: FeedDetailState = {
     loadingFeeds: true,
-    liked: false
+    liked: false,
+    openModal: false
   }
 
   async componentDidMount() {
@@ -95,6 +102,106 @@ export class FeedDetail extends React.PureComponent<
     }catch(e){
 
     }
+  }
+  handleUpdateFeedModal = (open: boolean) => {
+    this.setState({
+      ...this.state,
+      openModal: open
+    })
+  }
+  handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files) return
+
+    this.setState({
+      ...this.state,
+      newAttachment: files[0]
+    })
+  }
+  handleNewFeedCaptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    this.setState({
+      feed: {
+        ...this.state.feed as any,
+        caption: event.target.value
+      }
+    })
+  }
+  handleFeedUpdated = async () => {
+    try {
+      this.setState({
+        ...this.state,
+        loadingFeeds: true
+      })
+        await patchFeed(this.props.auth.getIdToken(), this.state.feed?.feedId as string,{
+        caption: this.state.feed?.caption as string,
+      })
+      if (this.state.newAttachment) {
+        const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.state.feed?.feedId as string)
+        await uploadFile(uploadUrl, this.state.newAttachment)
+      }
+      this.props.history.push(`/feeds/${this.state.feed?.feedId}`)
+    } catch (error) {
+      alert('Feed creation failed')
+      this.setState({
+        ...this.state,
+        loadingFeeds: false,
+        openModal: false
+      })
+    }
+  }
+  renderNewFeedInput() {
+    return (
+      <Modal
+        onClose={() => this.handleUpdateFeedModal(false)}
+        onOpen={() => this.handleUpdateFeedModal(true)}
+        open={this.state.openModal}
+      >
+        <Modal.Header>Create a new post</Modal.Header>
+        <Modal.Content image>
+          <Modal.Description>
+            <Form style={{ display: 'flex', gap: 16 }}>
+              {this.state.newAttachment ? (
+                <Image
+                  size="medium"
+                  src={URL.createObjectURL(this.state.newAttachment)}
+                  wrapped
+                />
+              ) : (
+                <Form.Field>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    placeholder="Image to upload"
+                    onChange={this.handleFileChange}
+                  />
+                </Form.Field>
+              )}
+
+              <Form.Field style={{ flex: 1 }}>
+                <TextArea
+                  placeholder="What's on your mind..."
+                  style={{ minHeight: 300 }}
+                  value={this.state.feed?.caption}
+                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    this.handleNewFeedCaptionChange(event)
+                  }
+                />
+              </Form.Field>
+            </Form>
+          </Modal.Description>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => this.handleUpdateFeedModal(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => this.handleFeedUpdated()} positive>
+            Post
+          </Button>
+        </Modal.Actions>
+      </Modal>
+    )
   }
   render() {
     return this.state.loadingFeeds ? (

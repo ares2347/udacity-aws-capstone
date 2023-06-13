@@ -21,12 +21,13 @@ interface FeedsProps {
 interface FeedsState {
   feeds: FeedItem[]
   loadingFeeds: boolean
+
 }
 
 export class MyFeeds extends React.PureComponent<FeedsProps, FeedsState> {
   state: FeedsState = {
     feeds: [],
-    loadingFeeds: true,
+    loadingFeeds: true
   }
 
 

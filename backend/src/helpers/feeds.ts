@@ -4,6 +4,8 @@ import { ScanFeedDto } from "src/models/dtos/scanFeedDto";
 import { CreateFeedRequest } from "src/models/request/createFeedRequest";
 import { Feed } from "src/models/entities/Feed";
 import { UpdateFeedRequest } from "src/models/request/updateFeedRequest";
+import * as uuid from 'uuid';
+import { getS3PublicUrl, getS3PutSignedUrl } from "src/utils/s3Utils";
 
 const feedAccess = new FeedAccess();
 const logger = createLogger('feeds');
@@ -11,6 +13,12 @@ const logger = createLogger('feeds');
 export async function scanFeeds(nextKey: any, limit: number): Promise<ScanFeedDto>{
     logger.info("Fetching feeds");
     const result = feedAccess.getFeeds(nextKey, limit);
+    logger.info("Feeds fetched");
+    return result;
+}
+export async function queryFeeds(userId: string, nextKey: any, limit: number): Promise<ScanFeedDto>{
+    logger.info("Fetching feeds");
+    const result = feedAccess.queryFeeds(userId, nextKey, limit);
     logger.info("Feeds fetched");
     return result;
 }
@@ -40,4 +48,11 @@ export async function likeFeed(feedId: string): Promise<void>{
     logger.info("Fetching feeds");
     await feedAccess.likeFeed(feedId);
     logger.info("Feeds fetched");
+}
+export async function getUploadUrl(feedId:string) {
+        const attachmentId = uuid.v4()
+        const uploadUrl = getS3PutSignedUrl(attachmentId);
+        const publicUrl = getS3PublicUrl(attachmentId);
+        await feedAccess.updateFeedAttachmentUrl(feedId, publicUrl);
+        return uploadUrl;
 }
