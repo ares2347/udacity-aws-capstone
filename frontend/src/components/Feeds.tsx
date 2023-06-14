@@ -115,34 +115,6 @@ export class Feeds extends React.PureComponent<FeedsProps, FeedsState> {
             </Feed.Content>
           </Feed.Event>
         ))}
-        <Feed.Event>
-          <Feed.Label>
-            <Image
-              circular
-              size="tiny"
-              src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
-            />
-          </Feed.Label>
-          <Feed.Content>
-            <Feed.Summary>
-              <Feed.User>Username</Feed.User>
-              <Feed.Date>Updated at 13/04/2000</Feed.Date>
-            </Feed.Summary>
-            <Feed.Extra text>This is caption</Feed.Extra>
-            <Feed.Extra images>
-              <Image
-                size="big"
-                src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
-              />{' '}
-            </Feed.Extra>
-            <Feed.Meta>
-              <Feed.Like>
-                <Icon name="like" />
-                10
-              </Feed.Like>
-            </Feed.Meta>
-          </Feed.Content>
-        </Feed.Event>
       </Feed>
     )
   }

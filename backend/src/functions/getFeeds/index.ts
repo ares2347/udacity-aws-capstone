@@ -8,7 +8,8 @@ export default {
       http: {
         method: "get",
         path: "feeds",
-        cors: true 
+        cors: true,
+        authorizer: "auth"
       },
     },
   ],
