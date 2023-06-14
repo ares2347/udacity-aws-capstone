@@ -1,0 +1,29 @@
+language: node_js
+node_js:
+  - "16.19.1"
+
+deploy_service_job: &DEPLOY_SERVICE_JOB
+  cache:
+    directories:
+      - node_modules
+      - backend/node_modules
+
+  install:
+    - cd ${SERVICE_PATH}
+    - npm install -g serverless
+    - travis_retry npm install
+    - travis_retry npm install
+    - serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret AWS_SECRET_ACCESS_KEY --profile serverless
+    - cd -
+
+  script:
+    - cd ${SERVICE_PATH}
+    - serverless deploy -s ${TRAVIS_BRANCH}
+    - cd -
+
+jobs:
+  include:
+    - <<: *DEPLOY_SERVICE_JOB
+      name: "Deploy Backend Service"
+      env:
+        - SERVICE_PATH="backend"
