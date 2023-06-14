@@ -9,6 +9,7 @@ export default {
       http: {     
         method: "post",
         cors: true,
+        authorizer: "auth",
         path: "feeds",
         request: {
           schemas: {

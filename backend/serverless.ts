@@ -35,33 +35,7 @@ const serverlessConfiguration: AWS = {
       SIGNED_URL_EXPIRATION: "3600",
       ATTACHMENTS_S3_BUCKET:
         "serverless-feeds-attachments-361796378879-development",
-    },
-    iamRoleStatements: [
-      {
-        Effect: "Allow",
-        Action: [
-          "dynamodb:Scan",
-          "dynamodb:Query",
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem",
-          "dynamodb:GetItem",
-          "dynamodb:DeleteItem",
-        ],
-        Resource:
-          "arn:aws:dynamodb:us-east-1:*:table/${self:provider.environment.FEEDS_TABLE}",
-      },
-      {
-        Effect: "Allow",
-        Action: ["s3:PutObject", "s3:GetObject"],
-        Resource: "arn:aws:s3:::${self:provider.environment.ATTACHMENTS_S3_BUCKET}",
-      },
-      {
-        Effect: "Allow",
-        Action: ["dynamodb:Query"],
-        Resource:["arn:aws:dynamodb:us-east-1:*:table/${self:provider.environment.FEEDS_TABLE}/index/${self:provider.environment.FEEDS_TABLE_GSI}"]
-      }
-      // Add more IAM role statements as needed
-    ],
+    }
   },
   // import the function via paths
   functions: {

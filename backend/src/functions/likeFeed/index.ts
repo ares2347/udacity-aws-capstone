@@ -10,6 +10,7 @@ export default {
         method: "patch",
         path: "feeds/like/{feedId}",
         cors: true,
+        authorizer: "auth",
         request: {
           schemas: {
             "application/json": schema,

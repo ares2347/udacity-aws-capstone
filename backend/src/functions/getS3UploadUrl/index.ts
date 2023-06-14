@@ -10,6 +10,7 @@ export default {
         method: "get",
         path: "feeds/uploadUrl/{feedId}",
         cors: true,
+        authorizer: "auth",
       },
     },
   ],

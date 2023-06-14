@@ -9,7 +9,8 @@ export default {
       http: {
         method: "get",
         path: "feeds/my-feed",
-        cors: true 
+        cors: true,
+        authorizer: "auth",
       },
     },
   ],
