@@ -49,7 +49,6 @@ const serverlessConfiguration: AWS = {
     getS3UploadUrl,
     getFeedsByUser
   },
-  package: { individually: true },
   custom: {
     esbuild: {
       bundle: true,
