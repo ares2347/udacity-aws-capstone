@@ -9,7 +9,7 @@ import {
   Feed
 } from 'semantic-ui-react'
 
-import { getFeeds, getMyFeeds} from '../api/feed-api'
+import {getMyFeeds} from '../api/feed-api'
 import Auth from '../auth/Auth'
 import { Feed as FeedItem } from '../types/Feed'
 
@@ -37,7 +37,7 @@ export class MyFeeds extends React.PureComponent<FeedsProps, FeedsState> {
 
   async componentDidMount() {
     try {
-      const feeds = await getFeeds(this.props.auth.getIdToken())
+      const feeds = await getMyFeeds(this.props.auth.getIdToken())
       this.setState({
         feeds,
         loadingFeeds: false
@@ -54,7 +54,7 @@ export class MyFeeds extends React.PureComponent<FeedsProps, FeedsState> {
   render() {
     return (
       <div>
-        <Header as="h1">Feeds</Header>
+        <Header as="h1">My Feeds</Header>
 
         {this.renderFeeds()}
       </div>
@@ -88,12 +88,12 @@ export class MyFeeds extends React.PureComponent<FeedsProps, FeedsState> {
               <Image
                 circular
                 size="tiny"
-                src="https://th.bing.com/th/id/OIG.n9uMDUv50OpeIkdd_8u0"
+                src={feed.picture}
               />
             </Feed.Label>
             <Feed.Content>
               <Feed.Summary>
-                <Feed.User>{feed.userId}</Feed.User>
+                <Feed.User>{feed.name}</Feed.User>
                 <Feed.Date>
                   {feed.createdAt === feed.updatedAt
                     ? new Date(feed.createdAt).toDateString()

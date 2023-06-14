@@ -4,6 +4,7 @@ import { ScanFeedDto } from "src/models/dtos/scanFeedDto";
 import { Feed } from "src/models/entities/Feed";
 import { CreateFeedRequest } from "src/models/request/createFeedRequest";
 import { UpdateFeedRequest } from "src/models/request/updateFeedRequest";
+import { getS3PublicUrl } from "src/utils/s3Utils";
 import * as uuid from 'uuid';
 
 export class FeedAccess {
@@ -11,7 +12,6 @@ export class FeedAccess {
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
         private readonly feedTable = process.env.FEEDS_TABLE,
         private readonly feedTableGsi = process.env.FEEDS_TABLE_GSI,
-        private readonly bucketName = process.env.ATTACHMENTS_S3_BUCKET,
     ){}
 
     async getFeeds(nextKey: any, limit: number) : Promise<ScanFeedDto>{
@@ -105,6 +105,7 @@ export class FeedAccess {
         }).promise();
     }
     async updateFeedAttachmentUrl(feedId: string, attachmentId: string) : Promise<void>{
+        const publicUrl = getS3PublicUrl(attachmentId);
         await this.docClient.update({
             TableName: this.feedTable,
             Key: {
@@ -112,7 +113,7 @@ export class FeedAccess {
             },
             UpdateExpression: "set attachmentUrl = :attachmentUrl",
             ExpressionAttributeValues: {
-                ":attachmentUrl": `https://${this.bucketName}.s3.amazonaws.com/${attachmentId}`
+                ":attachmentUrl": publicUrl
             }
         }).promise();
     }

@@ -5,7 +5,7 @@ import { CreateFeedRequest } from "src/models/request/createFeedRequest";
 import { Feed } from "src/models/entities/Feed";
 import { UpdateFeedRequest } from "src/models/request/updateFeedRequest";
 import * as uuid from 'uuid';
-import { getS3PublicUrl, getS3PutSignedUrl } from "src/utils/s3Utils";
+import {getS3PutSignedUrl } from "src/utils/s3Utils";
 
 const feedAccess = new FeedAccess();
 const logger = createLogger('feeds');
@@ -52,7 +52,6 @@ export async function likeFeed(feedId: string): Promise<void>{
 export async function getUploadUrl(feedId:string) {
         const attachmentId = uuid.v4()
         const uploadUrl = getS3PutSignedUrl(attachmentId);
-        const publicUrl = getS3PublicUrl(attachmentId);
-        await feedAccess.updateFeedAttachmentUrl(feedId, publicUrl);
+        await feedAccess.updateFeedAttachmentUrl(feedId, attachmentId);
         return uploadUrl;
 }

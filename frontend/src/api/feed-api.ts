@@ -94,7 +94,7 @@ export async function getUploadUrl(
   idToken: string,
   feedId: string
 ): Promise<string> {
-  const response = await Axios.get(`${apiEndpoint}/feeds/${feedId}/uploadUrl`, {
+  const response = await Axios.get(`${apiEndpoint}/feeds/uploadUrl/${feedId}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
