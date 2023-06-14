@@ -1,4 +1,5 @@
 import type { AWS } from "@serverless/typescript";
+import IamRolesPerFunction from 'serverless-iam-roles-per-function';
 import getFeeds from "@functions/getFeeds";
 import auth from "@functions/auth";
 import createFeed from "@functions/createFeed";
