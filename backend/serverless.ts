@@ -6,6 +6,8 @@ import updateFeed from "@functions/updateFeed";
 import deleteFeed from "@functions/deleteFeed";
 import getFeedById from "@functions/getFeedById";
 import likeFeed from "@functions/likeFeed";
+import getS3UploadUrl from "@functions/getS3UploadUrl";
+import getFeedsByUser from "@functions/getFeedsByUser";
 
 const serverlessConfiguration: AWS = {
   app: "udacity-capstone",
@@ -70,6 +72,8 @@ const serverlessConfiguration: AWS = {
     deleteFeed,
     getFeedById,
     likeFeed,
+    getS3UploadUrl,
+    getFeedsByUser
   },
   package: { individually: true },
   custom: {

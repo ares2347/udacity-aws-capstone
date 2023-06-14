@@ -8,7 +8,7 @@ export default {
     {
       http: {
         method: "get",
-        path: "feeds/{feedId}/uploadUrl",
+        path: "feeds/uploadUrl/{feedId}",
         cors: true,
       },
     },
