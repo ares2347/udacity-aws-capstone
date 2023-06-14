@@ -142,7 +142,7 @@ const serverlessConfiguration: AWS = {
       AttachmentsBucket: {
         Type: "AWS::S3::Bucket",
         Properties: {
-          BucketName: "${self:provider.environment.ATTACHMENTS_S3_BUCKET}",
+          BucketName: "serverless-feeds-attachments-361796378879-development",
           CorsConfiguration: {
             CorsRules: [
               {
